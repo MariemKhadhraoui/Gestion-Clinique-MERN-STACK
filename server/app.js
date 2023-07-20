@@ -6,10 +6,14 @@ var logger = require('morgan');
 const http = require('http');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const color= require('colors')
 require('dotenv').config();
 
 
 var usersRouter = require('./routes/userRoutes');
+var cliniqueRouter = require('./routes/cliniqueRoutes');
+var rendezVousRouter = require('./routes/rendezVousRoutes');
+var departementRouter = require('./routes/departementRoutes');
 
 
 var app = express();
@@ -24,6 +28,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use('/api/users', usersRouter);
+app.use('/api/clinique', cliniqueRouter);
+app.use('/api/rendezVous', rendezVousRouter);
+app.use('/api/departement', departementRouter);
 
 
 
@@ -46,13 +53,13 @@ app.use(function(err, req, res, next) {
 // Connection to MongoDB
 mongoose.set('strictQuery',true);
 mongoose.connect(process.env.MONGO_URI , {useNewUrlParser: true})
-.then(()=>{ console.log("Connected to DB")})
+.then(()=>{ console.log("Connected to DB".yellow)})
 .catch((err)=>{console.log(err.message)})
 
 //------------------ Connection to the Server --------------------------------------//
 const server = http.createServer(app);
 server.listen(5000, ()=>{
-  console.log("app is running on port 5000");
+  console.log("app is running on port 5000".bold);
 })
 
 module.exports = app;
