@@ -5,10 +5,10 @@ const rendezVousSchema = new mongoose.Schema({
     type: String,
   },
   id_patient: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, ref: 'User' 
   },
   id_service: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, ref: 'Service' 
   },
   description: {
     type: String,

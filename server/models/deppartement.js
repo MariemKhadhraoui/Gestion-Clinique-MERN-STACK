@@ -9,8 +9,8 @@ const deppartementSchema = new mongoose.Schema({
     default: [],
   },
   id_manager: {
-    type: String,
-  },
+    type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  
 });
 
 const Deppartement = mongoose.model("Deppartement", deppartementSchema);
