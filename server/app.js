@@ -17,6 +17,15 @@ var serviceRouter = require("./routes/serviceRoutes");
 
 var app = express();
 
+app.use(cors({
+  origin: ['http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization', 'x-auth-token'],
+  credentials: true
+
+}));
+
+
 app.use(cors());
 
 app.use(logger("dev"));

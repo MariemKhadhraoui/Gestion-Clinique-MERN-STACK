@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const User = require('../models/User');
-
 
 const cliniqueSchema = new mongoose.Schema({
   nom: { 
@@ -11,15 +9,14 @@ const cliniqueSchema = new mongoose.Schema({
     
      },
      image: {
-      type: String,        
-     
+      type: String,
     },
   code_postale: { 
     type: Number, 
        },
   id_directeur: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User' 
+    type: String, 
+     
   },
    localisation: {
       latitude: { type: Number },

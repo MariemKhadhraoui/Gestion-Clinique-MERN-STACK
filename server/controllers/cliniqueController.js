@@ -1,15 +1,16 @@
-const Clinique = require('../models/clinique'); 
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const path = require('path');
 const multer = require('multer');
-
+//const { cloudinaryUploadImage } = require('../utils/cloudinary');
+const Clinique = require('../models/clinique');
 
 //------------------------ Cloudinary Infos -----------------------------------------------//
 // Configuration de Cloudinary
-cloudinary.config({ 
-  cloud_name: '', 
-  api_key: '', 
-  api_secret: '' 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Configuration de multer pour spécifier où enregistrer les fichiers en utilisant CloudinaryStorage
@@ -17,42 +18,52 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'cliniqueImages', //  dossier dans lequel les images seront stockées sur Cloudinary
-    allowed_formats: ['jpg', 'jpeg', 'png'] //  les formats de fichier autorisés
+    allowed_formats: ['jpg', 'jpeg', 'png'] //  formats de fichier autorisés
   }
 });
 
-// multer avec le stockage CloudinaryStorage
-const upload = multer({ storage });
-
-exports.createClinique = upload.single('image'), async (req, res) => {
-  try {
+const upload = multer({ storage: storage });
+exports.createClinique = async (req, res) => {
+  try { 
     const { nom, adresse, code_postale, id_directeur, latitude, longitude } = req.body;
-    // tester si une clinique existe déjà
+     console.log("test1")
+    // Tester si une clinique existe déjà avec le même nom
     const existingClinique = await Clinique.findOne({ nom });
     if (existingClinique) {
       return res.status(400).json({ error: 'Une clinique avec ce nom existe déjà. Le nom doit être unique.' });
     }
+      console.log("test2")
+       // Télécharger l'image sur Cloudinary
+       console.log(req)
+       const result = await cloudinary.uploader.upload(req.file.path);
+       console.log(req)
+       console.log(result)
 
-    const result = await cloudinary.uploader.upload(req.file.path);
 
-    const clinique = new Clinique({ 
-      nom, 
-      adresse, 
-      image: result.secure_url, 
-      code_postale, 
+    // Création de la clinique avec l'image sécurisée depuis Cloudinary
+    const clinique = new Clinique({
+      nom,
+      adresse,
+      image: result.secure_url, // Stockez l'URL sécurisée de l'image de Cloudinary dans le champ 'image' du livre,
+      code_postale,
       id_directeur,
       localisation: {
         latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
-      }
+      },
     });
 
+    // Sauvegarde de la clinique en base de données
     await clinique.save();
+    
+   
     res.status(201).json({ message: 'Clinique enregistrée avec succès', clinique });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: 'Une erreur est survenue lors de l\'enregistrement de la clinique' });
   }
 };
+
 
 
 
@@ -73,62 +84,44 @@ exports.createClinique = upload.single('image'), async (req, res) => {
 //   }
 // };
 
-
-
-// // Modification d'une clinique
-// exports.updateClinique = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { nom, adresse, code_postale, id_directeur } = req.body;
-//     const clinique = await Clinique.findByIdAndUpdate(id, { nom, adresse, code_postale, id_directeur }, { new: true });
-//     if (!clinique) {
-//       return res.status(404).json({ error: 'Clinique non trouvée' });
-//     }
-//     res.json({ message: 'Clinique modifiée avec succès', clinique });
-//   } catch (error) {
-//     res.status(500).json({ error: 'Une erreur est survenue lors de la modification de la clinique' });
-//   }
-// };
-exports.updateClinique = upload.single('image'), async (req, res) => {
+exports.updateClinique = async (req, res) => {
   try {
     const { id } = req.params;
     const { nom, adresse, code_postale, id_directeur, latitude, longitude } = req.body;
 
     // Vérifier si la clinique existe avant de la mettre à jour
-    const existingClinique = await Clinique.findById(id);
-    if (!existingClinique) {
+    const clinique = await Clinique.findById(id);
+    if (!clinique) {
       return res.status(404).json({ error: 'Clinique non trouvée' });
     }
 
-    // Vérifier si le nom de la clinique est modifié et qu'il n'existe pas déjà
-    if (nom && nom !== existingClinique.nom) {
-      const duplicateClinique = await Clinique.findOne({ nom });
-      if (duplicateClinique) {
-        return res.status(400).json({ error: 'Une clinique avec ce nom existe déjà. Le nom doit être unique.' });
-      }
-    }
-
     // Vérifiez si une nouvelle image a été téléchargée
+    let imageUrl;
     if (req.file) {
+      // Téléchargez la nouvelle image sur Cloudinary
       const result = await cloudinary.uploader.upload(req.file.path);
-      existingClinique.image.url = result.secure_url; // Mettre à jour l'URL sécurisée de l'image sur Cloudinary
-      existingClinique.image.public_id = result.public_id; // Mettre à jour l'identifiant public de l'image sur Cloudinary
+      // Récupérez l'URL sécurisée de la nouvelle image
+      imageUrl = result.secure_url;
+      // Mettez à jour l'URL de l'image dans la base de données
+      clinique.image = imageUrl;
     }
+   // Mettez à jour les autres champs de la clinique 
+      clinique.nom = nom;
+      clinique.adresse = adresse;
+      clinique.code_postale = code_postale;
+      clinique.id_directeur = id_directeur;
+      clinique.localisation.latitude = parseFloat(latitude);
+      clinique.localisation.longitude = parseFloat(longitude);
+    
+    // Sauvegarde de la clinique mise à jour en base de données
+    await clinique.save();
 
-    existingClinique.nom = nom;
-    existingClinique.adresse = adresse;
-    existingClinique.code_postale = code_postale;
-    existingClinique.id_directeur = id_directeur;
-    existingClinique.localisation.latitude = parseFloat(latitude);
-    existingClinique.localisation.longitude = parseFloat(longitude);
-
-    await existingClinique.save();
-    res.json({ message: 'Clinique modifiée avec succès', clinique: existingClinique });
+    res.json({ message: 'Clinique modifiée avec succès', clinique });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: 'Une erreur est survenue lors de la modification de la clinique' });
   }
 };
-
 
 
 // Affichage d'une clinique par id 
@@ -169,19 +162,47 @@ exports.deleteClinique = async (req, res) => {
   }
 };
 
-// Recherche d'une clinique par nom
+//-------------------------- Recherche d'une clinique par nom   --------------------------------------------//
 exports.searchClinique = async (req, res) => {
   try {
     const { nom } = req.query;
     const regex = new RegExp(nom, 'i');
     const cliniques = await Clinique.find({ nom: regex });
-
-    // if (cliniques.length === 0) {
-    //   return res.status(404).json({ error: 'Aucune clinique trouvée' });
-    // }
-
     res.json(cliniques);
   } catch (error) {
+    res.status(500).json({ error: 'Une erreur est survenue lors de la recherche des cliniques' });
+  }
+};
+
+
+
+//---------------------------------------- Recherche Multi-Critère ------------------------------------------//
+exports.searchCliniques = async (req, res) => {
+  try {
+    const { nom, code_postale, id_directeur, latitude, longitude } = req.query;
+    const filters = {};
+
+    //  critères de recherche de clinique fournis par l'utilisateur
+    if (nom) {
+      filters.nom = { $regex: new RegExp(nom, 'i') }; // Recherche insensible à la casse
+    }
+    if (code_postale) {
+      filters.code_postale = code_postale;
+    }
+    if (id_directeur) {
+      filters.id_directeur = id_directeur;
+    }
+    if (latitude && longitude) {
+      filters['localisation.latitude'] = parseFloat(latitude);
+      filters['localisation.longitude'] = parseFloat(longitude);
+    }
+
+    // Requête de recherche avec les filtres
+    const cliniques = await Clinique.find(filters);
+
+    res.status(200).json({ cliniques });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ error: 'Une erreur est survenue lors de la recherche des cliniques' });
   }
 };
