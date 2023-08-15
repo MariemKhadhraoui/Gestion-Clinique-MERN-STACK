@@ -23,9 +23,12 @@ const storage = new CloudinaryStorage({
 });
 
 const upload = multer({ storage: storage });
+
+
+//--------------------------  ajout d'une clinique   --------------------------------------------//
 exports.createClinique = async (req, res) => {
   try { 
-    const { nom, adresse, code_postale, id_directeur, latitude, longitude } = req.body;
+    const { nom, adresse, code_postale,pays,email, ville, numtelephone, description, id_directeur, latitude, longitude } = req.body;
      console.log("test1")
     // Tester si une clinique existe déjà avec le même nom
     const existingClinique = await Clinique.findOne({ nom });
@@ -46,6 +49,11 @@ exports.createClinique = async (req, res) => {
       adresse,
       image: result.secure_url, // Stockez l'URL sécurisée de l'image de Cloudinary dans le champ 'image' du livre,
       code_postale,
+      pays,
+      ville, 
+      numtelephone, 
+      email,
+      description,
       id_directeur,
       localisation: {
         latitude: parseFloat(latitude),
@@ -84,10 +92,13 @@ exports.createClinique = async (req, res) => {
 //   }
 // };
 
+
+//--------------------------  Mise a jour d'une clinique   --------------------------------------------//
 exports.updateClinique = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nom, adresse, code_postale, id_directeur, latitude, longitude } = req.body;
+  
+    const { nom, adresse, code_postale,pays,email, ville, numtelephone, description, id_directeur, latitude, longitude } = req.body;
 
     // Vérifier si la clinique existe avant de la mettre à jour
     const clinique = await Clinique.findById(id);
@@ -108,6 +119,11 @@ exports.updateClinique = async (req, res) => {
    // Mettez à jour les autres champs de la clinique 
       clinique.nom = nom;
       clinique.adresse = adresse;
+      clinique.pays = pays;
+      clinique.ville = ville;
+      clinique.email = email;
+      clinique.numtelephone = numtelephone;
+      clinique.description = description;
       clinique.code_postale = code_postale;
       clinique.id_directeur = id_directeur;
       clinique.localisation.latitude = parseFloat(latitude);
@@ -124,7 +140,9 @@ exports.updateClinique = async (req, res) => {
 };
 
 
-// Affichage d'une clinique par id 
+
+//--------------------------  Affichage d'une clinique par id   --------------------------------------------//
+
 exports.getClinique = async (req, res) => {
   try {
     const { id } = req.params;
@@ -138,7 +156,9 @@ exports.getClinique = async (req, res) => {
   }
 };
 
-// Affichage de la liste des cliniques
+
+//--------------------------  Affichage de la liste des cliniques  --------------------------------------------//
+
 exports.getAllCliniques = async (req, res) => {
   try {
     const cliniques = await Clinique.find();
@@ -148,7 +168,10 @@ exports.getAllCliniques = async (req, res) => {
   }
 };
 
-// Suppression d'une clinique
+// 
+
+//--------------------------  Suppression d'une clinique  --------------------------------------------//
+
 exports.deleteClinique = async (req, res) => {
   try {
     const { id } = req.params;
@@ -179,7 +202,7 @@ exports.searchClinique = async (req, res) => {
 //---------------------------------------- Recherche Multi-Critère ------------------------------------------//
 exports.searchCliniques = async (req, res) => {
   try {
-    const { nom, code_postale, id_directeur, latitude, longitude } = req.query;
+    const { nom, code_postale, pays,email, ville, numtelephone,id_directeur, latitude, longitude } = req.query;
     const filters = {};
 
     //  critères de recherche de clinique fournis par l'utilisateur
@@ -188,6 +211,18 @@ exports.searchCliniques = async (req, res) => {
     }
     if (code_postale) {
       filters.code_postale = code_postale;
+    }
+    if (pays) {
+      filters.pays = pays;
+    }
+    if (email) {
+      filters.email = email;
+    }
+    if (ville) {
+      filters.ville = ville;
+    }
+    if (numtelephone) {
+      filters.numtelephone = numtelephone;
     }
     if (id_directeur) {
       filters.id_directeur = id_directeur;

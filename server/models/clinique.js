@@ -8,17 +8,37 @@ const cliniqueSchema = new mongoose.Schema({
     type: String,
     
      },
-     image: {
+     email: { 
+      type: String,
+      
+       },
+  image: {
       type: String,
     },
+    
+  pays: {
+      type: String,
+    },
+  ville: {
+      type: String,
+    },
+    
   code_postale: { 
     type: Number, 
        },
+       
+  numtelephone: {
+      type: Number,
+    },
   id_directeur: { 
     type: String, 
      
   },
-   localisation: {
+  description:{ 
+    type: String, 
+     
+  },
+  localisation: {
       latitude: { type: Number },
       longitude: { type: Number },
     } 
