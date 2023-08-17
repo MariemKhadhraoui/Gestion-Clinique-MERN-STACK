@@ -26,28 +26,76 @@ const upload = multer({ storage: storage });
 
 
 //--------------------------  ajout d'une clinique   --------------------------------------------//
+// exports.createClinique = async (req, res) => {
+//   try { 
+//     const { nom, adresse, code_postale,pays,email, ville, numtelephone, description, id_directeur, latitude, longitude } = req.body;
+//      console.log("test1")
+//     // Tester si une clinique existe déjà avec le même nom
+//     const existingClinique = await Clinique.findOne({ nom });
+//     if (existingClinique) {
+//       return res.status(400).json({ error: 'Une clinique avec ce nom existe déjà. Le nom doit être unique.' });
+//     }
+//       console.log("test2")
+//        // Télécharger l'image sur Cloudinary
+//        console.log(req)
+//        const result = await cloudinary.uploader.upload(req.file.path);
+//        console.log(req)
+//        console.log(result)
+
+
+//     // Création de la clinique avec l'image sécurisée depuis Cloudinary
+//     const clinique = new Clinique({
+//       nom,
+//       adresse,
+//       image: result.secure_url, // Stockez l'URL sécurisée de l'image de Cloudinary dans le champ 'image' du livre,
+//       code_postale,
+//       pays,
+//       ville, 
+//       numtelephone, 
+//       email,
+//       description,
+//       id_directeur,
+//       localisation: {
+//         latitude: parseFloat(latitude),
+//         longitude: parseFloat(longitude),
+//       },
+//     });
+
+//     // Sauvegarde de la clinique en base de données
+//     await clinique.save();
+    
+   
+//     res.status(201).json({ message: 'Clinique enregistrée avec succès', clinique });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: 'Une erreur est survenue lors de l\'enregistrement de la clinique' });
+//   }
+// };
+
+
 exports.createClinique = async (req, res) => {
   try { 
-    const { nom, adresse, code_postale,pays,email, ville, numtelephone, description, id_directeur, latitude, longitude } = req.body;
-     console.log("test1")
+    console.log("test111111")
+    const { nom, adresse, code_postale, pays, email, ville, numtelephone, description, id_directeur, latitude, longitude, dateOuverture, horairesOuvertureL } = req.body;
+    console.log("test1")
     // Tester si une clinique existe déjà avec le même nom
     const existingClinique = await Clinique.findOne({ nom });
     if (existingClinique) {
       return res.status(400).json({ error: 'Une clinique avec ce nom existe déjà. Le nom doit être unique.' });
     }
-      console.log("test2")
-       // Télécharger l'image sur Cloudinary
-       console.log(req)
-       const result = await cloudinary.uploader.upload(req.file.path);
-       console.log(req)
-       console.log(result)
-
+    
+    console.log("test2")
+    // Télécharger l'image sur Cloudinary
+    console.log(req)
+    const result = await cloudinary.uploader.upload(req.file.path);
+    console.log(req)
+    console.log(result)
 
     // Création de la clinique avec l'image sécurisée depuis Cloudinary
     const clinique = new Clinique({
       nom,
       adresse,
-      image: result.secure_url, // Stockez l'URL sécurisée de l'image de Cloudinary dans le champ 'image' du livre,
+      image: result.secure_url,
       code_postale,
       pays,
       ville, 
@@ -55,24 +103,21 @@ exports.createClinique = async (req, res) => {
       email,
       description,
       id_directeur,
-      localisation: {
-        latitude: parseFloat(latitude),
+       latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
-      },
+      dateOuverture,
+      horairesOuvertureL,
     });
 
     // Sauvegarde de la clinique en base de données
     await clinique.save();
     
-   
     res.status(201).json({ message: 'Clinique enregistrée avec succès', clinique });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Une erreur est survenue lors de l\'enregistrement de la clinique' });
   }
 };
-
-
 
 
 

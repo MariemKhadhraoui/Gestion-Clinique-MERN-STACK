@@ -38,10 +38,17 @@ const cliniqueSchema = new mongoose.Schema({
     type: String, 
      
   },
-  localisation: {
-      latitude: { type: Number },
-      longitude: { type: Number },
-    } 
+  
+   latitude: { type: Number },
+   longitude: { type: Number },
+  
+  dateOuverture :{
+      type :Date,
+  },
+  
+  horairesOuvertureL : {
+     type :Date ,
+  }
          
 });
 
