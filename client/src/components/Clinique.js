@@ -2,53 +2,81 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const Clinique = () => {
-  const [nom, setNom] = useState('');
-  const [adresse, setAdresse] = useState('');
-  const [code_postale, setCodePostale] = useState('');
-  const [pays, setPays] = useState('');
-  const [email, setEmail] = useState('');
-  const [ville, setVille] = useState('');
-  const [numtelephone, setNumTelephone] = useState('');
-  const [description, setDescription] = useState('');
-  const [id_directeur, setIdDirecteur] = useState('');
-  const [image, setImage] = useState(null);
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [dateOuverture, setDateOuverture] = useState('');
-  const [horairesOuvertureL, setHorairesOuvertureL] = useState('');
+  const [formData, setFormData] = useState({
+    nom: '',
+    adresse: '',
+    code_postale: '',
+    pays: '',
+    email: '',
+    ville: '',
+    numtelephone: '',
+    description: '',
+    id_directeur: '',
+    image: null, // Utilisez null pour représenter l'absence d'image au départ
+    latitude: '',
+    longitude: '',
+    dateOuverture: '',
+    horairesOuvertureL: '',
+  });
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleImageChange = (e) => {
+    setFormData({
+      ...formData,
+      image: e.target.files[0], // Mettez à jour l'image avec le fichier sélectionné
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    const formData = new FormData();
-    formData.append('nom', nom);
-    formData.append('adresse', adresse);
-    formData.append('code_postale', code_postale);
-    formData.append('pays', pays);
-    formData.append('email', email);
-    formData.append('ville', ville);
-    formData.append('numtelephone', numtelephone);
-    formData.append('description', description);
-    formData.append('id_directeur', id_directeur);
-    formData.append('image', image);
-    formData.append('latitude', latitude);
-    formData.append('longitude', longitude);
-    formData.append('dateOuverture', dateOuverture);
-    formData.append('horairesOuvertureL', horairesOuvertureL);
+    const formDataToSend = new FormData();
 
+    // Transférez toutes les valeurs du formulaire dans formDataToSend
+    for (const key in formData) {
+      formDataToSend.append(key, formData[key]);
+    }
+   
+    
     try {
-      const response = await axios.post('http://localhost:5000/api/clinique/add', formData, {
+      const response = await axios.post('http://localhost:5000/api/clinique/add', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       setSuccess(response.data.message);
+
+      // Réinitialisez le formulaire après un ajout réussi
+      setFormData({
+        nom: '',
+        adresse: '',
+        code_postale: '',
+        pays: '',
+        email: '',
+        ville: '',
+        numtelephone: '',
+        description: '',
+        id_directeur: '',
+        image: null,
+        latitude: '',
+        longitude: '',
+        dateOuverture: '',
+        horairesOuvertureL: '',
+      });
     } catch (error) {
-      console.log(error.response.data.error);
+      console.error(error);
       setError(error.response.data.error);
     }
   };
@@ -62,72 +90,72 @@ const Clinique = () => {
         {/* Champ "Nom" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Nom :</label>
-          <input type="text" value={nom} onChange={(e) => setNom(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="nom" value={formData.nom} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Adresse" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Adresse :</label>
-          <input type="text" value={adresse} onChange={(e) => setAdresse(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="adresse" value={formData.adresse} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Code Postal" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Code Postal :</label>
-          <input type="text" value={code_postale} onChange={(e) => setCodePostale(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="code_postale" value={formData.code_postale} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Pays" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Pays :</label>
-          <input type="text" value={pays} onChange={(e) => setPays(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="pays" value={formData.pays} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Email" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Email :</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="email" name="email" value={formData.email} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Ville" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Ville :</label>
-          <input type="text" value={ville} onChange={(e) => setVille(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="ville" value={formData.ville} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Numéro de Téléphone" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Numéro de Téléphone :</label>
-          <input type="tel" value={numtelephone} onChange={(e) => setNumTelephone(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="tel" name="numtelephone" value={formData.numtelephone} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Description" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Description :</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <textarea name="description" value={formData.description} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "ID Directeur" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>ID Directeur :</label>
-          <input type="text" value={id_directeur} onChange={(e) => setIdDirecteur(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="id_directeur" value={formData.id_directeur} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Image" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Image :</label>
-          <input type="file" onChange={(e) => setImage(e.target.files[0])} accept="image/*" required />
+          <input type="file" name="image" onChange={handleImageChange} accept="image/*" required />
         </div>
         {/* Champ "Latitude" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Latitude :</label>
-          <input type="text" value={latitude} onChange={(e) => setLatitude(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="latitude" value={formData.latitude} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Longitude" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Longitude :</label>
-          <input type="text" value={longitude} onChange={(e) => setLongitude(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="text" name="longitude" value={formData.longitude} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Date d'Ouverture" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Date d'Ouverture :</label>
-          <input type="date" value={dateOuverture} onChange={(e) => setDateOuverture(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="date" name="dateOuverture" value={formData.dateOuverture} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Champ "Horaires d'Ouverture" */}
         <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center' }}>
           <label style={{ fontWeight: 'bold', marginRight: '10px', width: '100px' }}>Horaires d'Ouverture :</label>
-          <input type="time" value={horairesOuvertureL} onChange={(e) => setHorairesOuvertureL(e.target.value)} style={{ flex: 1, padding: '5px' }} required />
+          <input type="time" name="horairesOuvertureL" value={formData.horairesOuvertureL} onChange={handleInputChange} style={{ flex: 1, padding: '5px' }} required />
         </div>
         {/* Bouton de soumission */}
         <button

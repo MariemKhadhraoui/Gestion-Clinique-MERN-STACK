@@ -13,10 +13,11 @@ const cliniqueSchema = new mongoose.Schema({
       
        },
   image: {
-      type: String,
+  
+         type: String,
     },
-    
-  pays: {
+     
+     pays: {
       type: String,
     },
   ville: {
@@ -47,7 +48,7 @@ const cliniqueSchema = new mongoose.Schema({
   },
   
   horairesOuvertureL : {
-     type :Date ,
+     type :String ,
   }
          
 });
