@@ -32,7 +32,7 @@ const upload = multer({ storage: storage });
 // Enregistrement d'une clinique
 router.post('/add', upload.single('image'), cliniqueController.createClinique);
 
-// // Modification d'une clinique
+ // Modification d'une clinique
 router.put('/put/:id', upload.single('image'), cliniqueController.updateClinique);
 
 // Affichage d'une clinique
