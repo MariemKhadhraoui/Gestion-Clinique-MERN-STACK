@@ -104,8 +104,8 @@ exports.createClinique =  async (req, res) => {
       email,
       description,
       id_directeur,
-       latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
       dateOuverture,
       horairesOuvertureL,
     });
@@ -144,7 +144,8 @@ exports.updateClinique = async (req, res) => {
   try {
     const { id } = req.params;
   
-    const { nom, adresse, code_postale,pays,email, ville, numtelephone, description, id_directeur, latitude, longitude } = req.body;
+    const { nom, adresse, code_postale,pays,email, ville, numtelephone, description, id_directeur, dateOuverture,
+      horairesOuvertureL,latitude, longitude } = req.body;
 
     // Vérifier si la clinique existe avant de la mettre à jour
     const clinique = await Clinique.findById(id);
@@ -172,8 +173,10 @@ exports.updateClinique = async (req, res) => {
       clinique.description = description;
       clinique.code_postale = code_postale;
       clinique.id_directeur = id_directeur;
-      clinique.localisation.latitude = parseFloat(latitude);
-      clinique.localisation.longitude = parseFloat(longitude);
+      clinique.latitude = parseFloat(latitude);
+      clinique.longitude = parseFloat(longitude);
+      clinique.dateOuverture = dateOuverture;
+      clinique.horairesOuvertureL= horairesOuvertureL; 
     
     // Sauvegarde de la clinique mise à jour en base de données
     await clinique.save();
@@ -248,8 +251,9 @@ exports.searchClinique = async (req, res) => {
 //---------------------------------------- Recherche Multi-Critère ------------------------------------------//
 exports.searchCliniques = async (req, res) => {
   try {
-    const { nom, code_postale, pays,email, ville, numtelephone,id_directeur, latitude, longitude } = req.query;
-    const filters = {};
+    const { nom, code_postale, pays,email, ville, numtelephone,id_directeur, latitude, longitude, dateOuverture,
+      horairesOuvertureL } = req.query;
+       const filters = {};
 
     //  critères de recherche de clinique fournis par l'utilisateur
     if (nom) {
@@ -260,24 +264,34 @@ exports.searchCliniques = async (req, res) => {
     }
     if (pays) {
       filters.pays = pays;
-    }
-    if (email) {
+    
+  }; 
+  if (dateOuverture) {
+    filters.dateOuverture = dateOuverture;
+  }; 
+
+  if (horairesOuvertureL) {
+  filters.horairesOuvertureL = horairesOuvertureL;
+  }
+  if (email) {
       filters.email = email;
     }
-    if (ville) {
+  if (ville) {
       filters.ville = ville;
     }
-    if (numtelephone) {
+  if (numtelephone) {
       filters.numtelephone = numtelephone;
     }
     if (id_directeur) {
       filters.id_directeur = id_directeur;
     }
-    if (latitude && longitude) {
-      filters['localisation.latitude'] = parseFloat(latitude);
-      filters['localisation.longitude'] = parseFloat(longitude);
+    if (latitude) {
+      filters.latitude = parseFloat(latitude);
     }
-
+    if (longitude) {
+      filters.longitude = parseFloat(longitude);
+    }
+  
     // Requête de recherche avec les filtres
     const cliniques = await Clinique.find(filters);
 
