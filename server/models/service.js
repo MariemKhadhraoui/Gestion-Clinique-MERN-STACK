@@ -7,6 +7,10 @@ const serviceSchema = new mongoose.Schema({
   id_deppartement: {
     type: String,
   },
+  image: {
+  
+         type: String,
+    },
 });
 
 const Service = mongoose.model("Service", serviceSchema);

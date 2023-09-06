@@ -84,19 +84,14 @@ exports.createClinique =  async (req, res) => {
       return res.status(400).json({ error: 'Une clinique avec ce nom existe déjà. Le nom doit être unique.' });
     }
      // Télécharger l'image sur Cloudinary
-     
      const result = await cloudinary.uploader.upload(req.file.path);
      console.log("test2")
      console.log(result)
-
-
     // Création de la clinique avec l'image sécurisée depuis Cloudinary
     const clinique = await Clinique.create({
-    
       nom,
       adresse,
       image:  result.secure_url, 
-
       code_postale,
       pays,
       ville, 
@@ -110,10 +105,7 @@ exports.createClinique =  async (req, res) => {
       horairesOuvertureL,
     });
 
-    // Sauvegarde de la clinique en base de données
-    //await clinique.save();
-    
-    res.status(201).json({ message: 'Clinique enregistrée avec succès', clinique });
+  res.status(201).json({ message: 'Clinique enregistrée avec succès', clinique });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Une erreur est survenue lors de l\'enregistrement de la clinique' });
