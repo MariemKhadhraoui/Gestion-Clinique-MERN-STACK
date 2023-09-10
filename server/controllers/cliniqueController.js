@@ -146,10 +146,10 @@ exports.updateClinique = async (req, res) => {
     // Vérifiez si une nouvelle image a été téléchargée
     let imageUrl;
     if (req.file) {
-      // Téléchargez la nouvelle image sur Cloudinary
-      const result = await cloudinary.uploader.upload(req.image);
-      // Récupérez l'URL sécurisée de la nouvelle image
-      imageUrl = result.secure_url;
+      // // Téléchargez la nouvelle image sur Cloudinary
+      // const result = await cloudinary.uploader.upload(req.image);
+      // // Récupérez l'URL sécurisée de la nouvelle image
+      imageUrl =  req.file.path, 
       // Mettez à jour l'URL de l'image dans la base de données
       clinique.image = imageUrl;
     }

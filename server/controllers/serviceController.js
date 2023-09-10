@@ -35,11 +35,11 @@ exports.createService = async (req, res) => {
         error: "Un service avec ce nom existe déjà. Le nom doit être unique.",
       });
     }
-    const result = await cloudinary.uploader.upload(req.file.path);
+   // const result = await cloudinary.uploader.upload(req.file.path);
 
     const service = new Service({ 
       nom,
-      image:  result.secure_url, 
+      image:  req.file.path, 
       id_deppartement });
     await service.save();
     res
@@ -66,9 +66,9 @@ exports.updateService = async (req, res) => {
       let imageUrl;
       if (req.file) {
         // Téléchargez la nouvelle image sur Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path);
+        //const result = await cloudinary.uploader.upload(req.file.path);
         // Récupérez l'URL sécurisée de la nouvelle image
-        imageUrl = result.secure_url;
+        imageUrl = req.file.path;
         // Mettez à jour l'URL de l'image dans la base de données
         service.image = imageUrl;
       }
